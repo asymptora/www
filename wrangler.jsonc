@@ -1,0 +1,29 @@
+// Worker configuration. This file is the single source of truth for how
+// www.asymptora.com is served; the Cloudflare dashboard is not edited by hand.
+// Reference: https://developers.cloudflare.com/workers/wrangler/configuration/
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+
+  // Worker name in the Cloudflare account. Also becomes the preview hostname:
+  // https://www.asymptora.workers.dev
+  "name": "www",
+
+  // Pins runtime behaviour to this date so future platform changes cannot
+  // silently alter how the site is served. Bump deliberately, in its own PR.
+  "compatibility_date": "2026-09-12",
+
+  // No Worker script: Cloudflare serves the directory below directly.
+  "assets": {
+    "directory": "./public",
+    // Unknown paths get public/404.html with a real 404 status
+    // (RFC 0001, goal "a real 404 for unknown paths").
+    "not_found_handling": "404-page"
+  },
+
+  // Keep the workers.dev hostname active: it is the validation target before
+  // the custom domain moves (RFC 0001, plan item 7).
+  "workers_dev": true,
+
+  // Per-version preview URLs, used to check a deployment before promoting it.
+  "preview_urls": true
+}

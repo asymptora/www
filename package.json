@@ -1,0 +1,12 @@
+{
+  "name": "asymptora-www",
+  "private": true,
+  "description": "www.asymptora.com — static site served by a Cloudflare Worker",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.131.1"
+  }
+}
