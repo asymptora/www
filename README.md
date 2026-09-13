@@ -1,5 +1,8 @@
 # asymptora-www
 
+[![issues](https://img.shields.io/github/issues/asymptora/www)](https://github.com/asymptora/www/issues)
+[![license](https://img.shields.io/github/license/asymptora/www)](LICENSE)
+
 Source of `www.asymptora.com`: a static site served by a Cloudflare Worker and
 deployed by GitHub Actions from the `main` branch.
 
