@@ -66,6 +66,18 @@ The token has no TTL, so rotation is manual and on-demand:
 A future improvement is to add a TTL and rotate on a fixed cadence; deferred
 until a rotation rhythm is established.
 
+
+### Rotation history
+
+- **2026-09-19**: token recreated under the account's actual owner. The
+  original token had been created while authenticated through a shared
+  session belonging to another operator, which attributed all resulting
+  Cloudflare audit history to that operator instead of the person who
+  acted. Recreated with the same scope (`Account | Workers Scripts | Edit`,
+  Asymptora account only) under the correct account. New token verified via
+  a successful deployment (workflow run triggered by push to `main`) before
+  the old token was revoked.
+
 ## Detection
 
 | Layer | Control |
