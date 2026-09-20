@@ -20,9 +20,10 @@
     "not_found_handling": "404-page"
   },
 
-  // Keep the workers.dev hostname active: it is the validation target before
-  // the custom domain moves (RFC 0001, plan item 7).
-  "workers_dev": true,
+  // Disabled after the custom domain cutover (RFC 0001, issue #14):
+  // production runs on www.asymptora.com, and keeping workers.dev active
+  // would leave a second, indexable public URL for the same site.
+  "workers_dev": false,
 
   // Per-version preview URLs, used to check a deployment before promoting it.
   "preview_urls": true
