@@ -1,0 +1,55 @@
+name: Edge Verification
+
+# Checks production behaviour directly against www.asymptora.com and
+# asymptora.com — not the repository's content. This is detection, not
+# prevention: it runs after the fact and reports, it never blocks a PR.
+#
+# Three independent triggers, any one of which runs the same checks:
+#   - workflow_run: right after CI/CD's deploy job succeeds (catches a
+#     deploy that broke production)
+#   - schedule: once a day, regardless of deploys (catches drift from
+#     changes made outside the repo — e.g. a dashboard edit to DNS or a
+#     Redirect Rule, exactly what issues #10/#11 did today)
+#   - workflow_dispatch: manual "Run workflow" button, on demand
+
+on:
+  workflow_run:
+    workflows: ["CI/CD"]
+    types: [completed]
+  schedule:
+    # 06:00 UTC daily = 03:00 BRT (UTC-3).
+    - cron: "0 6 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  verify:
+    # For the workflow_run trigger, only proceed if CI/CD's own run
+    # succeeded — no point checking production after a failed deploy
+    # attempt (nothing changed) or a PR-only run (nothing deployed).
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: www.asymptora.com serves 200
+        run: |
+          status=$(curl -s -o /dev/null -w '%{http_code}' https://www.asymptora.com/)
+          echo "status: $status"
+          test "$status" = "200"
+
+      - name: unknown path on www returns a real 404
+        run: |
+          status=$(curl -s -o /dev/null -w '%{http_code}' \
+            https://www.asymptora.com/this-path-should-never-exist)
+          echo "status: $status"
+          test "$status" = "404"
+
+      - name: apex redirects to www with 301, path preserved
+        run: |
+          result=$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' \
+            https://asymptora.com/some-test-path)
+          echo "result: $result"
+          status="${result%% *}"
+          location="${result#* }"
+          test "$status" = "301"
+          test "$location" = "https://www.asymptora.com/some-test-path"
