@@ -1,55 +1,75 @@
 name: Edge Verification
 
-# Checks production behaviour directly against www.asymptora.com and
-# asymptora.com — not the repository's content. This is detection, not
-# prevention: it runs after the fact and reports, it never blocks a PR.
+# Verifies production edge configuration via the Cloudflare Management API
+# (api.cloudflare.com), not by requesting www.asymptora.com/asymptora.com
+# directly. This is deliberate: the zone has Bot Fight Mode enabled, which
+# treats datacenter traffic (including GitHub-hosted runners) as suspicious
+# and can return 403 to a plain curl against the site itself — a false
+# negative unrelated to whether the configuration is actually correct.
+# Calling Cloudflare's own API sidesteps that layer entirely and checks the
+# configuration directly, which is what we actually care about here.
 #
-# Three independent triggers, any one of which runs the same checks:
-#   - workflow_run: right after CI/CD's deploy job succeeds (catches a
-#     deploy that broke production)
-#   - schedule: once a day, regardless of deploys (catches drift from
-#     changes made outside the repo — e.g. a dashboard edit to DNS or a
-#     Redirect Rule, exactly what issues #10/#11 did today)
-#   - workflow_dispatch: manual "Run workflow" button, on demand
+# Read-only: uses CLOUDFLARE_API_TOKEN_READONLY (Workers Scripts:Read,
+# Zone DNS:Read, Zone Single Redirect:Read), never the deploy token.
+#
+# Three triggers: after a successful deploy, daily, and on demand.
 
 on:
   workflow_run:
     workflows: ["CI/CD"]
     types: [completed]
   schedule:
-    # 06:00 UTC daily = 03:00 BRT (UTC-3).
-    - cron: "0 6 * * *"
+    - cron: "0 6 * * *" # 03:00 BRT
   workflow_dispatch: {}
+
+env:
+  ACCOUNT_ID: cd33aa975b18060a99362305a6d1c9db
+  ZONE_ID: 39eb64b7e6a68ea868619dc8927b6b03
 
 jobs:
   verify:
-    # For the workflow_run trigger, only proceed if CI/CD's own run
-    # succeeded — no point checking production after a failed deploy
-    # attempt (nothing changed) or a PR-only run (nothing deployed).
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
-      - name: www.asymptora.com serves 200
+      - name: www.asymptora.com is bound to the www Worker
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN_READONLY }}
         run: |
-          status=$(curl -s -o /dev/null -w '%{http_code}' https://www.asymptora.com/)
-          echo "status: $status"
-          test "$status" = "200"
+          response=$(curl -s \
+            "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/workers/domains?hostname=www.asymptora.com" \
+            -H "Authorization: Bearer $TOKEN")
+          echo "$response"
+          service=$(echo "$response" | jq -r '.result[0].service')
+          enabled=$(echo "$response" | jq -r '.result[0].enabled')
+          test "$service" = "www"
+          test "$enabled" = "true"
 
-      - name: unknown path on www returns a real 404
+      - name: apex has a proxied A record to 192.0.2.1
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN_READONLY }}
         run: |
-          status=$(curl -s -o /dev/null -w '%{http_code}' \
-            https://www.asymptora.com/this-path-should-never-exist)
-          echo "status: $status"
-          test "$status" = "404"
+          response=$(curl -s \
+            "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?name=asymptora.com&type=A" \
+            -H "Authorization: Bearer $TOKEN")
+          echo "$response"
+          content=$(echo "$response" | jq -r '.result[0].content')
+          proxied=$(echo "$response" | jq -r '.result[0].proxied')
+          test "$content" = "192.0.2.1"
+          test "$proxied" = "true"
 
-      - name: apex redirects to www with 301, path preserved
+      - name: redirect rule sends apex to www with 301
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN_READONLY }}
         run: |
-          result=$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' \
-            https://asymptora.com/some-test-path)
-          echo "result: $result"
-          status="${result%% *}"
-          location="${result#* }"
+          response=$(curl -s \
+            "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/rulesets/phases/http_request_dynamic_redirect/entrypoint" \
+            -H "Authorization: Bearer $TOKEN")
+          echo "$response"
+          enabled=$(echo "$response" | jq -r '.result.rules[0].enabled')
+          status=$(echo "$response" | jq -r '.result.rules[0].action_parameters.from_value.status_code')
+          target=$(echo "$response" | jq -r '.result.rules[0].action_parameters.from_value.target_url.expression')
+          test "$enabled" = "true"
           test "$status" = "301"
-          test "$location" = "https://www.asymptora.com/some-test-path"
+          echo "$target" | grep -q 'www.asymptora.com'
