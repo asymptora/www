@@ -55,8 +55,11 @@ has no content worth preserving.
   repository's name, with its configuration versioned.
 - One canonical hostname (`www.asymptora.com`); the apex redirects to it.
 - A real `404` for unknown paths.
-- The initial information architecture: home, about, team, one page per
-  product (Collect, Balance, Pay), journey.
+- The initial information architecture: home, about, one page per
+  operator (Janaína, Higor), a shared journey/couple page, a products hub,
+  and one page per product as each is ready to publish (starting with
+  Collect, Balance, Pay), plus a navigation link to `blog.asymptora.com`
+  (no post structure lives in this repository).
 - The site's original language is English. A Portuguese translation, if it
   exists, is a later step with its own URL-structure decision, out of scope
   for this RFC.
