@@ -28,6 +28,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Validate wrangler config
+        # Catches wrangler.jsonc syntax/config errors on the PR, before
+        # merge — previously these only surfaced at actual deploy time,
+        # after landing on main.
+        run: npx wrangler deploy --dry-run
+
       - name: Check for broken internal links
         # Tested against a running wrangler dev server, not the file
         # system directly: linkinator over public/index.html cannot
