@@ -83,7 +83,7 @@ until a rotation rhythm is established.
 | Layer | Control |
 |---|---|
 | Push | GitHub Secret Scanning with Push Protection |
-| CI | secret scan on the pull request (planned, RFC 0001 phase 2) |
+| CI | secret scan on the pull request (gitleaks, .github/workflows/secret-scan.yml) |
 
 Because no secret is ever meant to be in the tree, any secret-scanning hit is
 treated as a real incident, not a false positive to be dismissed.
