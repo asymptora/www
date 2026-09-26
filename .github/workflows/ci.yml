@@ -29,14 +29,21 @@ jobs:
         run: npm ci
 
       - name: Check for broken internal links
-        # linkinator serves local files through a temporary localhost server,
-        # so every link — even internal ones — appears as an http(s):// URL
-        # while scanning. The --skip pattern therefore excludes real external
-        # hosts only, not 127.0.0.1/localhost, or every link would be skipped
-        # (verified locally: an unqualified "^https?://" skip reports 0 links
-        # scanned). This keeps external sites out of CI (issue #8) without
-        # skipping the scan itself.
-        run: npx linkinator public/index.html --recurse --skip '^https?://(?!127\.0\.0\.1|localhost)'
+        # Tested against a running wrangler dev server, not the file
+        # system directly: linkinator over public/index.html cannot
+        # resolve clean URLs like /about to about.html (that resolution
+        # is the Worker's html_handling behaviour, not a filesystem
+        # fact), so it reported false 404s for every clean-URL page.
+        # wrangler dev is started and the check run in the same step,
+        # since a backgrounded process does not carry over between
+        # GitHub Actions steps (each is its own shell).
+        run: |
+          npx wrangler dev --port 8787 &
+          for i in $(seq 1 30); do
+            curl -s http://localhost:8787 > /dev/null && break
+            sleep 1
+          done
+          npx linkinator http://localhost:8787 --recurse --skip '^https?://(?!127\.0\.0\.1|localhost)'
 
   deploy:
     name: Deploy
