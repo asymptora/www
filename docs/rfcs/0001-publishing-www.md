@@ -56,7 +56,7 @@ has no content worth preserving.
 - One canonical hostname (`www.asymptora.com`); the apex redirects to it.
 - A real `404` for unknown paths.
 - The initial information architecture: home, about, one page per
-  operator (Janaína, Higor), a shared journey/couple page, a products hub,
+  operator (Higor, Janaína), a shared journey/couple page, a products hub,
   and one page per product as each is ready to publish (starting with
   Collect, Balance, Pay), plus a navigation link to `blog.asymptora.com`
   (no post structure lives in this repository).
