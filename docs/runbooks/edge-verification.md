@@ -34,6 +34,30 @@ any DNS:
 curl -sI --resolve <hostname>:443:<IP> https://<hostname>
 ```
 
+## Known trap: post-deploy edge propagation delay
+
+**Symptom:** right after a merge to `main`, some pages serve the new
+content immediately while others still serve the previous version for
+a short window (observed: a few minutes, on PRs #42 and #43).
+
+**Cause:** Workers Static Assets serves HTML with
+`Cache-Control: public, max-age=0, must-revalidate` (Cloudflare docs),
+so this is not HTTP caching. It is more likely the new deployment
+propagating across Cloudflare's edge network, which is not
+instantaneous for every point of presence. No official propagation
+time is documented for Workers Static Assets specifically, so treat
+this as expected but unconfirmed in duration.
+
+**Diagnosis:** re-check the same page after a short wait. If it is
+still stale after several minutes, treat it as a real symptom, not
+propagation, and escalate.
+
+**Why this isn't checked automatically:** `edge-verify.yml`
+deliberately avoids requesting www.asymptora.com directly, because Bot
+Fight Mode can return a false 403 to datacenter traffic (see that
+workflow's own comments). Automating a content-level check here would
+reintroduce that same false-negative risk.
+
 ## Step 1: DNS resolution
 
 ```bash
