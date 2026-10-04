@@ -1,6 +1,6 @@
 # RFC 0002: Visual identity for www.asymptora.com
 
-Status: Draft
+Status: Accepted
 
 Author: Janaína Cazuza
 
