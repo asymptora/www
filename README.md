@@ -36,6 +36,7 @@ Issues, not as unversioned local changes.
 | RFC | Title |
 |---|---|
 | [0001](docs/rfcs/0001-publishing-www.md) | Publish www.asymptora.com from this repository |
+| [0002](docs/rfcs/0002-visual-identity.md) | Visual identity for www.asymptora.com |
 
 ## Architecture decisions
 
