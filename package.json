@@ -3,7 +3,9 @@
   "private": true,
   "description": "www.asymptora.com — site estático servido por um Cloudflare Worker",
   "scripts": {
-    "dev": "wrangler dev"
+    "dev": "wrangler dev",
+    "tokens": "node design/build/tokens.mjs",
+    "tokens:check": "node design/build/tokens.mjs --check"
   },
   "devDependencies": {
     "linkinator": "^8.1.0",
