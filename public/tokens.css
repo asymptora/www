@@ -1,0 +1,62 @@
+/* GENERATED from design/tokens.json by design/build/tokens.mjs. Do not edit by hand. */
+/* Regenerate with: node design/build/tokens.mjs (CI fails if this file drifts). */
+:root {
+  /* Colour (dark) */
+  --surface-page: #050c0e;
+  --surface-raised: #0d1a1d;
+  --border: #1c2b2e;
+  --ink: #e7f1f2;
+  --ink-muted: #8fa3a6;
+  --accent-teal: #5ce0c6;
+  --accent: #62c4e8;
+  --accent-ink: #04141a;
+  --accent-subtle: #0f2830;
+  --focus-ring: var(--accent);
+
+  /* Font families */
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  /* Type styles */
+  --display-lg-size: 56px;
+  --display-lg-line: 62px;
+  --display-lg-weight: 600;
+  --display-lg-tracking: -0.01em;
+  --display-md-size: 36px;
+  --display-md-line: 44px;
+  --display-md-weight: 600;
+  --display-md-tracking: -0.005em;
+  --body-size: 16px;
+  --body-line: 27px;
+  --body-weight: 400;
+  --body-sm-size: 14px;
+  --body-sm-line: 22px;
+  --body-sm-weight: 400;
+  --label-size: 13px;
+  --label-line: 16px;
+  --label-weight: 500;
+  --label-tracking: 0.04em;
+  --tagline-size: 24px;
+  --tagline-line: 32px;
+  --tagline-weight: 400;
+  --code-size: 14px;
+  --code-line: 22px;
+  --code-weight: 400;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 40px;
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+
+  /* Pattern */
+  --dot-grid-pitch: 28px;
+  --dot-grid-dot: 1px;
+  --dot-grid-edge: 1.6px;
+  --dot-grid-color: rgba(231, 241, 242, 0.14);
+}

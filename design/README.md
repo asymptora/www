@@ -17,3 +17,15 @@ Provenance:
 This file is the single source in the repository: `public/tokens.css` will be
 generated from it (RFC 0002, D13). Do not edit it by hand to change a value;
 change the Design System and copy it again, updating the provenance above.
+
+## `public/tokens.css`
+
+Generated from `tokens.json` by `design/build/tokens.mjs` (ADR 0006). Only the
+`dark` values are emitted, because the site is dark-only.
+
+```
+node design/build/tokens.mjs           # write public/tokens.css
+node design/build/tokens.mjs --check   # what CI runs; writes nothing
+```
+
+After changing `tokens.json`, run the first command and commit both files.
