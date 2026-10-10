@@ -14,7 +14,8 @@ project, is tracked in [RFC 0001](docs/rfcs/0001-publishing-www.md).
 ## Repository layout
 
 ```
-public/                  Files served as-is (HTML, CSS, 404 page)
+public/                  Files served as-is (HTML, CSS, fonts, logo and icons, 404 page)
+design/                  Design tokens, shared markup and the scripts that derive files from them
 wrangler.jsonc           Worker configuration: what is served and how
 docs/rfcs/               Design proposals that precede changes
 docs/architecture/adr/   Architecture decision records
@@ -50,6 +51,9 @@ Records are added when implemented, not before.
 | [0004](docs/architecture/adr/0004-edge-verify-via-api.md) | Verify edge configuration via the Cloudflare API |
 | [0005](docs/architecture/adr/0005-deploy-via-github-actions.md) | Automated deploy via GitHub Actions |
 | [0006](docs/architecture/adr/0006-tokens-single-source-generated-css.md) | Design tokens: single source, generated CSS |
+| [0007](docs/architecture/adr/0007-dark-only-theme-no-javascript.md) | Dark theme only, no JavaScript |
+| [0008](docs/architecture/adr/0008-logo-assets-from-font-and-original-lambda.md) | Logo and favicon assets built from the font and the original lambda |
+| [0009](docs/architecture/adr/0009-self-hosted-variable-font-and-cache-policy.md) | Self-hosted variable font and cache policy |
 
 ## Deployment
 
