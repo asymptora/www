@@ -49,6 +49,7 @@ Records are added when implemented, not before.
 | [0003](docs/architecture/adr/0003-apex-redirect-via-zone-rule.md) | Apex redirect via a zone-level Redirect Rule |
 | [0004](docs/architecture/adr/0004-edge-verify-via-api.md) | Verify edge configuration via the Cloudflare API |
 | [0005](docs/architecture/adr/0005-deploy-via-github-actions.md) | Automated deploy via GitHub Actions |
+| [0006](docs/architecture/adr/0006-tokens-single-source-generated-css.md) | Design tokens: single source, generated CSS |
 
 ## Deployment
 
