@@ -22,6 +22,21 @@ wrong shape (a caret, or the plain symbol), so its path is copied byte for byte
 from the Design System and never redrawn. The braces and the wordmark are glyph
 outlines taken from the font, so they are exact and need no tracing.
 
+## Committed files
+
+The outputs the site uses are committed under `public/`, at the site root, so
+their URLs are stable:
+
+| File | Made by | Used for |
+|---|---|---|
+| `public/logo.svg` | `lockup-p3.svg` from `build_logo.py` | the header logo |
+| `public/favicon.svg` | `build_favicon.py` | browser tab icon (vector) |
+| `public/favicon.ico` | `build_favicon.py` | browser tab icon (16, 32 and 48 px; also what search engines read) |
+| `public/apple-touch-icon.png` | `build_favicon.py` | the iOS "Add to Home Screen" icon (180 px) |
+
+The `p1` and `p2` presets, the standalone symbols and the unprefixed lockup are
+not committed: nothing serves them, and the scripts regenerate them on demand.
+
 ## Prerequisites
 
 - Python 3.13 (the version the outputs were verified with).
@@ -65,9 +80,37 @@ committed files:
 .venv/bin/python -I design/build/build_favicon.py /tmp/logo /tmp/favicon
 ```
 
+To update the committed files, copy the four outputs listed above, then run the
+structural check:
+
+```
+cp /tmp/logo/lockup-p3.svg public/logo.svg
+cp /tmp/favicon/favicon.svg /tmp/favicon/favicon.ico /tmp/favicon/apple-touch-icon.png public/
+node design/build/check-assets.mjs
+```
+
+Generate into a directory outside the project and copy from there. Files produced
+inside some authoring environments have been seen to gain a metadata block
+between steps, and a copy of a generated file is never a substitute for running
+the scripts.
+
+## What CI checks
+
+`node design/build/check-assets.mjs` runs in CI (`npm run assets:check` runs it
+locally). CI does not run the Python scripts, so it checks structure only:
+
+- `public/logo.svg` and `public/favicon.svg` contain the original lambda path.
+  The check repeats the constant from `build_logo.py`; keep both in sync.
+- `public/favicon.ico` has exactly the 16, 32 and 48 px entries, each one a PNG
+  of the size it declares.
+- `public/apple-touch-icon.png` is a 180 by 180 px PNG.
+- No SVG, PNG or ICO under `public/` contains a `<metadata>` block or a C2PA
+  marker, and every SVG starts with `<svg`.
+
 ## How to check a run
 
-The SVG outputs are byte-identical on every run. Their SHA-256, with the sizes:
+The SVG outputs are byte-identical on every run. Their SHA-256, with the sizes
+(`lockup-p3.svg` is committed as `public/logo.svg`):
 
 | File | Bytes | SHA-256 |
 |---|---|---|

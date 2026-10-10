@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "wrangler dev",
     "tokens": "node design/build/tokens.mjs",
-    "tokens:check": "node design/build/tokens.mjs --check"
+    "tokens:check": "node design/build/tokens.mjs --check",
+    "assets:check": "node design/build/check-assets.mjs"
   },
   "devDependencies": {
     "linkinator": "^8.1.0",
