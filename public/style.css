@@ -1,4 +1,4 @@
-/* Placeholder styles. Visual identity is defined in RFC 0001, phase 4. */
+/* Placeholder styles. This file is rewritten from the tokens in RFC 0002, item 8. */
 body {
   margin: 0 auto;
   max-width: 40rem;
@@ -7,3 +7,12 @@ body {
   line-height: 1.5;
 }
 header { display: flex; justify-content: space-between; margin-bottom: 3rem; }
+
+/* Temporary, added with the new header (item 6) and removed by that rewrite (item 8):
+   the logo is light (ink), so the
+   page must be dark for it to be readable, and links must not be the browser blue.
+   Colours come from tokens.css; no literal colour is allowed here. */
+body { background: var(--surface-page); color: var(--ink); }
+a { color: var(--accent); }
+header { align-items: center; }
+header img { display: block; }
