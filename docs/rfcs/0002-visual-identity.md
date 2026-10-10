@@ -11,8 +11,19 @@ Status of each decision below:
 - **Decided**: stated explicitly by the author on 2026-10-04.
 - **To confirm**: a detail still waiting for the author (D8, the spelling).
 
-Nothing in this RFC is implemented. No file of this repository has been changed
-for it.
+Implemented by issues #50 to #60 (Iteration 2). The decisions that needed an
+ADR are recorded in ADRs 0006 to 0009, and the regeneration and verification
+steps are in the runbook `docs/runbooks/regenerate-visual-assets.md`. The text
+below is the proposal as it was accepted and is not rewritten to match the
+result. Differences found while implementing:
+
+- There is no preview environment, so item 10 was verified on production, after
+  the merge, in Firefox and in a Chromium browser.
+- The hero logo is 18.75rem wide (300 px). A first version used a percentage width
+  and rendered at zero size in Firefox; the width is now explicit on the `<h1>`.
+- `color-scheme: dark` is declared (see "Left to implementation").
+- The Home meta description is "Java engineering, built with excellence, in the
+  open." (D8).
 
 ## Summary
 
