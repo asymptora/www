@@ -54,6 +54,7 @@ Records are added when implemented, not before.
 | [0007](docs/architecture/adr/0007-dark-only-theme-no-javascript.md) | Dark theme only, no JavaScript |
 | [0008](docs/architecture/adr/0008-logo-assets-from-font-and-original-lambda.md) | Logo and favicon assets built from the font and the original lambda |
 | [0009](docs/architecture/adr/0009-self-hosted-variable-font-and-cache-policy.md) | Self-hosted variable font and cache policy |
+| [0010](docs/architecture/adr/0010-source-rules-checked-in-ci.md) | Rules on the source of the pages, checked in CI |
 
 ## Deployment
 

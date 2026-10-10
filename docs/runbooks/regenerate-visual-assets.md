@@ -14,8 +14,9 @@ and commands.
 | `public/tokens.css` | `design/tokens.json` | `npm run tokens` | `npm run tokens:check` |
 | The shared `<header>`, head links and `<body>` of every page | `design/shared/` | `npm run markup` | `npm run markup:check` |
 | `public/logo.svg`, `favicon.svg`, `favicon.ico`, `apple-touch-icon.png` | the font and the lambda constant | the Python scripts, by hand | `npm run assets:check` (structure only) |
+| Properties of every page and of the stylesheets (no script, no inline style, nothing external, text contrast) | the pages, `public/style.css`, `design/tokens.json` | nothing to regenerate | `npm run invariants:check` |
 
-Decisions behind this: ADR 0006 (tokens), ADR 0008 (logo assets), ADR 0009 (font).
+Decisions behind this: ADR 0006 (tokens), ADR 0008 (logo assets), ADR 0009 (font), ADR 0010 (page and stylesheet rules).
 
 ## Prerequisites
 
@@ -50,6 +51,16 @@ Run the same check locally first. Each message names the file and what differs.
 | `does not contain the original lambda path` | A logo file was edited or regenerated from a different path | Regenerate from the scripts. If the lambda itself changed, the Design System changes first, then the constant in `build_logo.py` **and** `design/build/check-assets.mjs` |
 | `has entries ... px, expected 16, 32 and 48` or a PNG size message | `favicon.ico` or the Apple icon was not produced by `build_favicon.py` | Regenerate with the scripts |
 | `contains a <metadata> block`, `contains a C2PA marker`, `carries a C2PA chunk (caBX)` | The file came from a tool or environment that adds provenance metadata | Do not strip it by hand. Regenerate with the scripts into a directory outside the project and copy from there |
+
+### "Check page and stylesheet rules" fails
+
+| Message contains | Meaning | Action |
+|---|---|---|
+| `contains <script>`, `inline event handler`, `javascript: URL` | A page runs script, which ADR 0007 excludes | Remove it. If script is really needed, that is a new decision (an ADR superseding 0007) |
+| `contains <style>`, `style= attribute` | Inline styling in a page | Move the rule to `public/style.css`, using tokens |
+| `contains iframe, object, embed or form` | An element the site does not use today | Do not add it without a decision recorded for it |
+| `loads from outside the site` | A `src`, `<link href>`, `srcset`, `@import` or `url()` points to another origin | Host the file under `public/` (the font is the precedent, ADR 0009). A plain link to another site is fine as `<a href>` |
+| `contrast: ... below 4.5:1` | A text token no longer reads on `surface-page` | Fix the colour in `design/tokens.json`, then `npm run tokens`. Colours change in the Design System first |
 
 ## Change the logo, the font or a colour the scripts repeat
 

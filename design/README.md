@@ -72,6 +72,27 @@ CI enforces this with `node design/build/apply-shared-markup.mjs --check`
 
 It does not check `<main>`, which is each page's own content.
 
+## Page and stylesheet rules
+
+CI also runs `node design/build/check-invariants.mjs` (ADR 0010)
+(`npm run invariants:check`), which writes nothing and fails when:
+
+- a page has a `<script>`, an inline event handler or a `javascript:` URL
+  (ADR 0007);
+- a page has a `<style>` or a `style=` attribute: visual rules live in
+  `public/style.css`;
+- a page has an `<iframe>`, `<object>`, `<embed>` or `<form>` (none is used today);
+- a page or a stylesheet loads anything from outside the site (`src`, `<link
+  href>`, `srcset`, `@import`, `url()`). External addresses are allowed only
+  as `<a href>`;
+- `ink`, `ink-muted` or `accent` (dark values in `tokens.json`) has less than
+  4.5:1 contrast against `surface-page`. Only dark is checked: the site is dark
+  only.
+
+It checks the source files in `public/`, not the HTML that Cloudflare delivers:
+Cloudflare injects scripts at the edge that are not in the repository, and this
+check does not see them. It does not check layout or how a page looks.
+
 ## `build/`
 
 The scripts that generate the logo and favicon files, with their dependencies and

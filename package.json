@@ -8,7 +8,8 @@
     "tokens:check": "node design/build/tokens.mjs --check",
     "assets:check": "node design/build/check-assets.mjs",
     "markup": "node design/build/apply-shared-markup.mjs",
-    "markup:check": "node design/build/apply-shared-markup.mjs --check"
+    "markup:check": "node design/build/apply-shared-markup.mjs --check",
+    "invariants:check": "node design/build/check-invariants.mjs"
   },
   "devDependencies": {
     "linkinator": "^8.1.0",

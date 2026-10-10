@@ -48,6 +48,15 @@ jobs:
         # nothing; on failure it says which page differs and how to fix it.
         run: node design/build/apply-shared-markup.mjs --check
 
+      - name: Check page and stylesheet rules
+        # ADR 0010. What a hand edit of a page or of style.css could silently break: no
+        # <script> or inline handler (ADR 0007), no <style> or style= (rules
+        # live in style.css), nothing authored loads from outside the site,
+        # and text contrast on the page background of at least 4.5:1,
+        # computed from design/tokens.json. Source files only: it does not
+        # see what Cloudflare injects at the edge.
+        run: node design/build/check-invariants.mjs
+
       - name: Validate wrangler config
         # Catches wrangler.jsonc syntax/config errors on the PR, before
         # merge — previously these only surfaced at actual deploy time,
