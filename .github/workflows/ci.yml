@@ -41,6 +41,13 @@ jobs:
         # carries a metadata block or a C2PA marker.
         run: node design/build/check-assets.mjs
 
+      - name: Check shared markup
+        # Parity between pages: every page under public/ must be exactly what
+        # design/build/apply-shared-markup.mjs would write (canonical header,
+        # head links, body tag), and the footers must be identical. Writes
+        # nothing; on failure it says which page differs and how to fix it.
+        run: node design/build/apply-shared-markup.mjs --check
+
       - name: Validate wrangler config
         # Catches wrangler.jsonc syntax/config errors on the PR, before
         # merge — previously these only surfaced at actual deploy time,

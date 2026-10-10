@@ -59,6 +59,19 @@ node design/build/apply-shared-markup.mjs
 Pages differ only on `<body>` (today, `class="home"` on the Home), never inside
 the header (RFC 0002).
 
+CI enforces this with `node design/build/apply-shared-markup.mjs --check`
+(`npm run markup:check`), which writes nothing and fails when:
+
+- a page differs from what the script would write (header, head links or body
+  tag edited by hand, or `shared/` changed without re-running the script);
+- a page has no `<header>` or more than one (the 404 included), or not exactly
+  one `<footer>`;
+- the footers are not identical across pages. There is no canonical footer
+  file: the pages are the reference, so a footer change has to be made on every
+  page in the same pull request.
+
+It does not check `<main>`, which is each page's own content.
+
 ## `build/`
 
 The scripts that generate the logo and favicon files, with their dependencies and
