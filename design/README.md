@@ -29,3 +29,17 @@ node design/build/tokens.mjs --check   # what CI runs; writes nothing
 ```
 
 After changing `tokens.json`, run the first command and commit both files.
+
+## `public/fonts/`
+
+Self-hosted JetBrains Mono (RFC 0002, "Typeface"), copied unmodified from the
+official repository, JetBrains/JetBrainsMono:
+
+| File | Source | Notes |
+|---|---|---|
+| `JetBrainsMono-VF.woff2` | `fonts/webfonts/JetBrainsMono[wght].woff2` | Version 2.305, variable on `wght` (100 to 800), 113,672 bytes, SHA-256 `31ec365b93e4bad6f202ce23352a56d01ca4462b2afc782ed2cf6fa42ca9ac0e` |
+| `OFL.txt` | `OFL.txt` | SIL Open Font License 1.1, SHA-256 `a76abf002c49097d146e86740a3105a5d00450b1592e820a1109a8c5680cd697` |
+
+The license text ships beside the font because the OFL requires it. The file is
+served at `/fonts/JetBrainsMono-VF.woff2`; the `@font-face` rule that uses it is
+added to `public/style.css` in a later step.
