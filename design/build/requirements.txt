@@ -1,0 +1,12 @@
+# Dependencies of design/build/*.py (see README.md in this directory).
+# Exact versions the outputs were verified with. Python 3.13, system cairo 1.18.
+cairocffi==1.7.1
+CairoSVG==2.9.1
+cffi==2.1.1
+cssselect2==0.10.1
+defusedxml==0.7.1
+fonttools==4.65.0
+pillow==12.3.0
+pycparser==3.11
+tinycss2==1.5.1
+webencodings==0.6.1
