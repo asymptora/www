@@ -44,6 +44,21 @@ The license text ships beside the font because the OFL requires it. The file is
 served at `/fonts/JetBrainsMono-VF.woff2`; the `@font-face` rule that uses it is
 added to `public/style.css` in a later step.
 
+## `shared/`
+
+The canonical shared markup: `header.html` (the `<header>`, identical on every
+page) and `head-links.html` (the icon and stylesheet links at the end of `<head>`).
+`build/apply-shared-markup.mjs` puts them into every page under `public/`, and it
+is idempotent: a second run changes nothing. To change the header, edit
+`shared/header.html`, run the script and commit the pages with it:
+
+```
+node design/build/apply-shared-markup.mjs
+```
+
+Pages differ only on `<body>` (today, `class="home"` on the Home), never inside
+the header (RFC 0002).
+
 ## `build/`
 
 The scripts that generate the logo and favicon files, with their dependencies and
