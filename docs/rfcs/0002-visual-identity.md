@@ -48,7 +48,7 @@ Verified on 2026-10-04 against `main` at `dfb4556`.
 | Tooling | Wrangler (dev, deploy) and linkinator (link check). Node 24. CI runs `wrangler deploy --dry-run` and linkinator | `package.json`, `ci.yml` |
 | Response headers | Static assets are served with `Cache-Control: public, max-age=0, must-revalidate` and an `ETag`. Wrangler sets `Content-Type` from the file extension at upload | Cloudflare docs, Workers static assets, Headers |
 | Meta descriptions | Present on 6 pages, absent on the 404. The five non-home descriptions were created in the skeleton commit `2cb7732` and were not touched by the content pull requests | `git log -S` |
-| Design System | Claude artifact "Asymptora", private to the authors: colour tokens (10, two themes), typography, spacing, radius, plus a `tagline` text style and a `pattern` family (dot grid) added on 2026-10-04 | artifact `lastChange` |
+| Design System | Artifact "Asymptora", private to the authors: colour tokens (10, two themes), typography, spacing, radius, plus a `tagline` text style and a `pattern` family (dot grid) added on 2026-10-04 | artifact `lastChange` |
 | Direction document | `asymptora-direcao-visual-da-marca.md`, cited by the Design System README, does not exist. The README was corrected on 2026-10-04. There is no separate direction document: this RFC and that README are the record | confirmed by the author |
 | Lockup mockups | The mockups appear to be rendered in a fallback monospace face (DejaVu Sans Mono Bold), not JetBrains Mono: shape overlap 0.75 against 0.68 for the best JetBrains Mono weight, and the preview page never loads the font. This is an inference from measurement, not confirmed | local analysis of the mockup raster |
 
