@@ -12,6 +12,8 @@ on:
 
 jobs:
   validate:
+    # The ruleset on main requires a check with this exact name (ADR 0011).
+    # Do not rename it without changing the ruleset.
     name: Validate
     runs-on: ubuntu-latest
     permissions:
