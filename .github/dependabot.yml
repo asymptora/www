@@ -1,0 +1,17 @@
+# Version updates for the GitHub Actions used by the workflows in this
+# repository. They are pinned to version tags (for example actions/checkout@v6),
+# and nothing else tells us when a new major version appears.
+#
+# npm dependencies are not listed on purpose: security alerts for them already
+# arrive through Dependabot security updates. Version updates for npm can be
+# added later if the weekly noise is worth it.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      # Dependabot adds the colon, so titles read "ci: ..." like the rest of
+      # this repository's history.
+      prefix: "ci"
