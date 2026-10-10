@@ -55,6 +55,7 @@ Records are added when implemented, not before.
 | [0008](docs/architecture/adr/0008-logo-assets-from-font-and-original-lambda.md) | Logo and favicon assets built from the font and the original lambda |
 | [0009](docs/architecture/adr/0009-self-hosted-variable-font-and-cache-policy.md) | Self-hosted variable font and cache policy |
 | [0010](docs/architecture/adr/0010-source-rules-checked-in-ci.md) | Rules on the source of the pages, checked in CI |
+| [0011](docs/architecture/adr/0011-main-protected-by-ruleset.md) | The `main` branch is protected by a repository ruleset |
 
 ## Deployment
 

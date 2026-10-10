@@ -42,7 +42,12 @@ empirically verified. Recommended to test it once, in a controlled way,
 before relying on it in a real emergency.
 
 **Always-available alternative:** revert the problematic commit
-(`git revert`) and let the normal pipeline redeploy.
+(`git revert`) and let the normal pipeline redeploy. `main` is protected
+(ADR 0011), so the revert goes through a pull request and its `Validate` and
+`Gitleaks` checks. If the pipeline itself is broken, a repository admin has to
+set the ruleset's enforcement to Disabled in Settings, Rules, Rulesets, push
+the fix, and set it back to Active in the same sitting. Say so in the pull
+request that follows.
 
 ## Scenario 2: custom domain rollback (zone configuration)
 
