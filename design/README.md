@@ -6,7 +6,7 @@ This directory holds the visual identity inputs for the site (RFC 0002).
 
 Design tokens (colors, type styles, spacing, radius, dot-grid pattern).
 It is a verbatim copy of `project/tokens.json` from the Asymptora Design
-System artifact in claude.ai, which is where the tokens are authored.
+System artifact, which is where the tokens are authored.
 
 Provenance:
 
