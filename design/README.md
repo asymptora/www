@@ -43,3 +43,8 @@ official repository, JetBrains/JetBrainsMono:
 The license text ships beside the font because the OFL requires it. The file is
 served at `/fonts/JetBrainsMono-VF.woff2`; the `@font-face` rule that uses it is
 added to `public/style.css` in a later step.
+
+## `build/`
+
+The scripts that generate the logo and favicon files, with their dependencies and
+the pinned font source: see [build/README.md](build/README.md).
