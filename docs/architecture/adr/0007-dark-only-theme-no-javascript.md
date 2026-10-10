@@ -53,9 +53,13 @@ The favicon is the one asset that meets a light surface regardless of the site's
 theme, because the browser tab can be light. That is why it sits on a
 `surface-page` tile (ADR 0008) and the header logo does not.
 
-Not enforced by CI today: nothing fails if someone adds a `<script>` or a
-`prefers-color-scheme: light` rule. Both are visible in review. A check for
-them has been proposed and is not decided.
+Not enforced by CI when this ADR was written: nothing failed if someone added a
+`<script>` or a `prefers-color-scheme: light` rule. ADR 0010 adds the check for
+`<script>`; the `prefers-color-scheme` rule is still left to review.
+
+"No JavaScript" describes the files in this repository. The HTML that
+Cloudflare delivers can carry scripts injected at the edge (observed
+2026-10-10, see ADR 0010).
 
 Reversing this decision means a new ADR, a light logo, a light favicon decision
 and tokens emitted under a media query; it does not mean deleting a line.
