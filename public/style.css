@@ -1,18 +1,80 @@
-/* Placeholder styles. This file is rewritten from the tokens in RFC 0002, item 8. */
+/* Site styles. Every colour, size, spacing and radius comes from tokens.css
+   (generated from design/tokens.json); no literal colour is allowed here and
+   CI fails if one appears. Dark only, no JavaScript (RFC 0002, D1, D2). */
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/JetBrainsMono-VF.woff2") format("woff2");
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap; /* the fallback stack in --font-mono shows while it loads */
+}
+
+:root {
+  color-scheme: dark; /* dark scrollbars and form controls; colours below are explicit */
+  background: var(--surface-page);
+  color: var(--ink);
+}
+
 body {
   margin: 0 auto;
-  max-width: 40rem;
-  padding: 2rem 1rem;
-  font-family: system-ui, sans-serif;
-  line-height: 1.5;
+  max-width: 46rem;
+  padding: var(--space-4) var(--space-3) var(--space-5);
+  background: var(--surface-page);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--body-size);
+  line-height: var(--body-line);
+  font-weight: var(--body-weight);
 }
-header { display: flex; justify-content: space-between; margin-bottom: 3rem; }
 
-/* Temporary, added with the new header (item 6) and removed by that rewrite (item 8):
-   the logo is light (ink), so the
-   page must be dark for it to be readable, and links must not be the browser blue.
-   Colours come from tokens.css; no literal colour is allowed here. */
-body { background: var(--surface-page); color: var(--ink); }
-a { color: var(--accent); }
-header { align-items: center; }
-header img { display: block; }
+a { color: var(--accent); text-underline-offset: 0.2em; }
+a:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; border-radius: var(--radius-sm); }
+
+/* Header: the logo on the left, the navigation on the right; it wraps on narrow screens. */
+header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-5);
+}
+header img { display: block; max-width: 100%; height: auto; }
+nav { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-3); font-size: var(--body-sm-size); line-height: var(--body-sm-line); }
+nav a { text-decoration: none; }
+nav a:hover { text-decoration: underline; }
+
+/* Content */
+main { max-width: 40rem; }
+h1 {
+  margin: 0 0 var(--space-4);
+  font-size: var(--display-md-size);
+  line-height: var(--display-md-line);
+  font-weight: var(--display-md-weight);
+  letter-spacing: var(--display-md-tracking);
+}
+h2 {
+  margin: var(--space-5) 0 var(--space-2);
+  font-size: var(--tagline-size);
+  line-height: var(--tagline-line);
+  font-weight: var(--display-md-weight);
+}
+p { margin: 0 0 var(--space-3); }
+em { color: var(--ink-muted); }
+
+/* Footer */
+footer {
+  margin-top: var(--space-5);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+  color: var(--ink-muted);
+  font-size: var(--body-sm-size);
+  line-height: var(--body-sm-line);
+}
+footer p { margin: 0; }
+
+@media (max-width: 30rem) {
+  h1 { font-size: var(--tagline-size); line-height: var(--tagline-line); }
+  h2 { font-size: var(--body-size); line-height: var(--body-line); }
+}
