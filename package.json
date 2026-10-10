@@ -6,7 +6,9 @@
     "dev": "wrangler dev",
     "tokens": "node design/build/tokens.mjs",
     "tokens:check": "node design/build/tokens.mjs --check",
-    "assets:check": "node design/build/check-assets.mjs"
+    "assets:check": "node design/build/check-assets.mjs",
+    "markup": "node design/build/apply-shared-markup.mjs",
+    "markup:check": "node design/build/apply-shared-markup.mjs --check"
   },
   "devDependencies": {
     "linkinator": "^8.1.0",
