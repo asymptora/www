@@ -95,8 +95,10 @@ body.home main {
   gap: var(--space-4);
   text-align: center;
 }
-body.home h1 { margin: 0; line-height: 0; }
-body.home h1 img { display: block; width: min(100%, 26rem); height: auto; }
+/* The h1 has an explicit width: a percentage width on the image inside a
+   shrink-to-fit grid item is circular, and browsers resolve it differently. */
+body.home h1 { margin: 0; line-height: 0; width: min(100%, 18.75rem); }
+body.home h1 img { display: block; width: 100%; height: auto; }
 .tagline {
   margin: 0;
   color: var(--ink-muted);
