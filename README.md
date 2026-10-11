@@ -29,16 +29,43 @@ npm ci
 npm run dev              # http://localhost:8787
 ```
 
+## Checks
+
+Every pull request runs these in CI (`.github/workflows/ci.yml`); they can be run
+locally with the same commands. `main` only accepts a pull request whose
+`Validate` and `Gitleaks` checks pass (ADR 0011).
+
+| Command | What it verifies |
+|---|---|
+| `npm run tokens:check` | `tokens.css` matches `design/tokens.json`; no literal colours outside it (ADR 0006) |
+| `npm run assets:check` | Logo and icon files derive from the font and the original lambda (ADR 0008) |
+| `npm run markup:check` | Header, head links and footer are identical across pages |
+| `npm run invariants:check` | No script, no inline style, nothing external; contrast of the text colours (ADR 0010) |
+| `npm run headers:check -- <url>` | Every page and the 404 carry the headers declared in `public/_headers` (ADR 0012). CI runs it against `wrangler dev` |
+
+## Security
+
+Reporting a vulnerability, and the controls around this repository, are in
+[SECURITY.md](SECURITY.md). The HTTP posture of the site is RFC 0003 and ADR 0012.
+
+## Runbooks
+
+| Runbook | Use when |
+|---|---|
+| [deploy-and-rollback](docs/runbooks/deploy-and-rollback.md) | A change must be deployed, or a deploy must be undone |
+| [edge-verification](docs/runbooks/edge-verification.md) | The site misbehaves between the visitor and the Worker, or the response headers need checking in production |
+| [regenerate-visual-assets](docs/runbooks/regenerate-visual-assets.md) | Tokens, logo or icons change, or a CI rule on them fails |
+
 ## Planning
 
 Work that changes production starts as an RFC, tracked by Milestones and
 Issues, not as unversioned local changes.
 
-| RFC | Title |
-|---|---|
-| [0001](docs/rfcs/0001-publishing-www.md) | Publish www.asymptora.com from this repository |
-| [0002](docs/rfcs/0002-visual-identity.md) | Visual identity for www.asymptora.com |
-| [0003](docs/rfcs/0003-http-security-posture.md) | HTTP security posture of www.asymptora.com (accepted) |
+| RFC | Title | Status |
+|---|---|---|
+| [0001](docs/rfcs/0001-publishing-www.md) | Publish www.asymptora.com from this repository | Accepted |
+| [0002](docs/rfcs/0002-visual-identity.md) | Visual identity for www.asymptora.com | Accepted |
+| [0003](docs/rfcs/0003-http-security-posture.md) | HTTP security posture of www.asymptora.com | Accepted |
 
 ## Architecture decisions
 
