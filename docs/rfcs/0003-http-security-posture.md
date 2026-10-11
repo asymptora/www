@@ -1,6 +1,6 @@
 # RFC 0003: HTTP security posture of www.asymptora.com
 
-Status: Proposed
+Status: Accepted
 
 Author: Janaína Cazuza
 
@@ -8,7 +8,7 @@ Reviewer: Higor Cazuza (also the owner of `asymptora/infra`, who decides the zon
 
 Status of each proposal below: P1, P2 and P3 were applied and verified by the
 `infra` owner on 2026-10-10, during the review (see "Applied during the
-review"). P4 is not proposed in this RFC. P5 and P6 are **Proposed**. The facts
+review"). P4 is not proposed in this RFC. P5 and P6 are accepted by the reviewer on 2026-10-11 and are implemented in their own pull requests. The facts
 in "Current state" were observed before P1, P2 and P3 were applied, except where
 a row says another date.
 
