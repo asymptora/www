@@ -57,6 +57,7 @@ Records are added when implemented, not before.
 | [0009](docs/architecture/adr/0009-self-hosted-variable-font-and-cache-policy.md) | Self-hosted variable font and cache policy |
 | [0010](docs/architecture/adr/0010-source-rules-checked-in-ci.md) | Rules on the source of the pages, checked in CI |
 | [0011](docs/architecture/adr/0011-main-protected-by-ruleset.md) | The `main` branch is protected by a repository ruleset |
+| [0012](docs/architecture/adr/0012-http-security-headers-and-edge-injections.md) | Security headers from `_headers`, the CSP enforced, and what Cloudflare injects |
 
 ## Deployment
 

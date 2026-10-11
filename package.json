@@ -9,7 +9,8 @@
     "assets:check": "node design/build/check-assets.mjs",
     "markup": "node design/build/apply-shared-markup.mjs",
     "markup:check": "node design/build/apply-shared-markup.mjs --check",
-    "invariants:check": "node design/build/check-invariants.mjs"
+    "invariants:check": "node design/build/check-invariants.mjs",
+    "headers:check": "node design/build/check-headers.mjs"
   },
   "devDependencies": {
     "linkinator": "^8.1.0",

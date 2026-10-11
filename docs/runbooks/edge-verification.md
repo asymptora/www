@@ -120,3 +120,34 @@ protection blocking.
 - ADR 0004: Verify edge configuration via the Cloudflare API
 - RFC 0001, issues #10, #11, #14, #15 (real executions that revealed the
   DNS caching trap)
+
+## Response headers in production
+
+Use after a change to `public/_headers`, or when the console of a browser shows
+a Content Security Policy message you do not recognise. CI checks the file
+against `wrangler dev` (ADR 0012); this checks what production answers.
+
+**Headers on a page and on the 404** (read only):
+```bash
+for p in / /about /nao-existe; do
+  echo "== $p"
+  curl -sI https://www.asymptora.com$p | grep -iE '^(HTTP|content-security-policy|permissions-policy|x-content-type-options)' | cut -c1-90
+done
+```
+Expected: the three headers on all three paths, and `HTTP/2 404` for the last.
+`content-security-policy` must not appear as `-report-only`.
+
+**Console of a browser** (Firefox or a Chromium browser, `Ctrl+Shift+R`, then
+the Console): a message that the policy blocked an inline script, with no URL
+from this repository, is the Cloudflare JavaScript detections script. It is
+expected (ADR 0012). A message that names a file of the site, a font, an image
+or a stylesheet is not: it means the policy no longer matches the pages, and
+that is a real defect.
+
+**A message about a script or connection to `cloudflareinsights`, or to
+`/cdn-cgi/rum`:** the Web Analytics beacon is on again. In the dashboard, Web
+Analytics, Manage site, set it to Disable (it was disabled on 2026-10-11).
+
+**An address of the form `<version>-www.<account>.workers.dev` answering `200`:**
+per-version preview URLs are on again. Check `preview_urls` in `wrangler.jsonc`
+(it must be `false`) and the dashboard, Workers and Pages, `www`, Domains.
