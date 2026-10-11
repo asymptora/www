@@ -25,6 +25,11 @@
   // would leave a second, indexable public URL for the same site.
   "workers_dev": false,
 
-  // Per-version preview URLs, used to check a deployment before promoting it.
-  "preview_urls": true
+  // No per-version preview URLs. With this on, a deployed version had a public
+  // address of the form <version>-www.asymptora.workers.dev that served the
+  // whole site, without Access (observed 2026-10-11, RFC 0003). The pipeline
+  // never uses them (no step uploads a version to check before promoting it),
+  // so they were a second public URL for nothing. Turn this on only together
+  // with Cloudflare Access on the previews, and say why in an ADR.
+  "preview_urls": false
 }
