@@ -6,31 +6,35 @@ Author: Janaína Cazuza
 
 Reviewer: Higor Cazuza (also the owner of `asymptora/infra`, who decides the zone-level items)
 
-Status of each proposal below: every item is **Proposed**. Nothing in this RFC is
-decided or implemented. The facts in "Current state" were observed on
-2026-10-10.
+Status of each proposal below: P1, P2 and P3 were applied and verified by the
+`infra` owner on 2026-10-10, during the review (see "Applied during the
+review"). P4 is not proposed in this RFC. P5 and P6 are **Proposed**. The facts
+in "Current state" were observed before P1, P2 and P3 were applied, except where
+a row says another date.
 
 ## Summary
 
 Proposes how `www.asymptora.com` should be served over HTTPS and which response
-headers it should send. Today the site answers in plain HTTP, the apex fails over
-HTTP, the zone accepts TLS 1.0, HSTS is off, and the pages carry none of the
-common security headers. The items split in two by owner: settings of the
+headers it should send. When this RFC was written, the site answered in plain
+HTTP, the apex failed over HTTP, the zone accepted TLS 1.0, HSTS was off, and the
+pages carried none of the common security headers. The items split in two by owner: settings of the
 `asymptora.com` zone, which the blog shares and `infra` decides, and headers
 that this repository can set for the site alone.
 
 ## Motivation
 
-The visual identity work (RFC 0002) made the site serve only same-origin
-content: no JavaScript, no inline styles, no third-party resources (ADR 0007).
-That makes a strict Content Security Policy feasible for the first time. While
+The visual identity work (RFC 0002) made the files of this repository serve only
+same-origin content: no JavaScript, no inline styles, no third-party resources
+(ADR 0007). That makes a strict Content Security Policy feasible for the first
+time. What Cloudflare adds to the HTML at the edge is not in the repository and
+is dealt with below. While
 checking the edge for it, three gaps showed up that are independent of any
 header: an unencrypted HTTP path for `www`, a hard failure (522) for the apex over
 HTTP, and a TLS floor that is below what the IETF deprecated in 2021.
 
 ## Current state
 
-Observed on 2026-10-10 from a home network, against `main` at `db9a9d1`.
+Observed on 2026-10-10 from a home network, against `main` at `db9a9d1`, before P1, P2 and P3 were applied.
 
 | Layer | Observed | Evidence |
 |---|---|---|
@@ -38,12 +42,13 @@ Observed on 2026-10-10 from a home network, against `main` at `db9a9d1`.
 | HTTP, `www` | `HTTP/1.1 200 OK`: no redirect to HTTPS | `curl -sI http://www.asymptora.com/` |
 | HTTP, blog | `HTTP/1.1 200 OK`: no redirect to HTTPS | `curl -sI http://blog.asymptora.com/` |
 | HTTP, apex | `522` after 19.7 s (an earlier attempt with a 10 s limit timed out) | `curl -sI -m 40 -o /dev/null -w '%{http_code} em %{time_total}s' http://asymptora.com/` |
-| Cause of the apex failure | The Redirect Rule "Redirect from root to WWW" has the request URL pattern `https://asymptora.com/*`, so it matches HTTPS only. An HTTP request reaches the proxied `A` record `192.0.2.1`, which has no server (ADR 0003) | Dashboard, Rules, Redirect Rules; ADR 0003 |
+| Cause of the apex failure | The Redirect Rule "Redirect from root to WWW" has the request URL pattern `https://asymptora.com/*`, so it matches HTTPS only. An HTTP request reaches the proxied `A` record, whose address is a documentation-range placeholder with no server behind it (ADR 0003) | Dashboard, Rules, Redirect Rules; ADR 0003 |
 | Always Use HTTPS | Off | Dashboard, SSL/TLS, Edge Certificates |
 | HSTS | Not enabled | Same page, "Enable HSTS" button shown |
 | Minimum TLS version | TLS 1.0 (default) | Same page |
 | Response headers on `/` | Present: `cache-control: public, max-age=0, must-revalidate`, `cf-cache-status`, `server: cloudflare`. Absent: `strict-transport-security`, `content-security-policy`, `x-content-type-options`, `x-frame-options`, `referrer-policy`, `permissions-policy`, `cross-origin-*` | `curl -sI` filtered by those names |
-| What the pages load | No `<script>`, no `<style>`, no `style=` attribute. Subresources are same-origin only: two stylesheets, three icon links, the logo image and one font loaded from the stylesheet. External addresses appear only as `<a href>` (the blog, GitHub, LinkedIn) | `grep` over `public/` |
+| What the repository's pages load | No `<script>`, no `<style>`, no `style=` attribute. Subresources are same-origin only: two stylesheets, three icon links, the logo image and one font loaded from the stylesheet. External addresses appear only as `<a href>` (the blog, GitHub, LinkedIn) | `grep` over `public/` |
+| HTML served by Cloudflare | Observed on 2026-10-11: `/` contains one inline `<script>` that Cloudflare injects (the challenge-platform JavaScript detections of Bot Fight Mode; it loads `/cdn-cgi/challenge-platform/scripts/jsd/main.js`) and one hidden link with an inline `style` attribute (`/cdn-cgi/content`, consistent with AI Labyrinth; the documentation does not show that URL, so this is not confirmed). On 2026-10-10 the same page also carried a `<script type="module">` from `static.cloudflareinsights.com` (the Web Analytics beacon, `data-cf-beacon`); it was absent on 2026-10-11 and the reason is not established. The reviewer reports that the blog receives the same inline script; not checked here | `curl -s https://www.asymptora.com/ \| grep -oP '\x3cscript[^\x3e]*\x3e'` and `grep -oP 'cdn-cgi/content\|static\.cloudflareinsights\.com\|data-cf-beacon'` |
 | `Content-Type` | Correct for every asset served (RFC 0002, verification on 2026-10-10) | `curl -I` |
 | Who decides zone settings | Not declared as code in `asymptora/infra`. By precedent (ADR 0003, ADR 0004) a zone-wide change is proposed here, documented here, and approved by the `infra` owner | Search of `infra` at `57a0a1e`; ADRs 0003 and 0004 |
 
@@ -53,9 +58,14 @@ supports up to 100 rules and 2,000 characters per line, and "overrides what
 Cloudflare ordinarily sends". It does not apply to responses generated by Worker
 code. The documentation does not say whether it applies to the 404 response.
 
-What the documentation does not say, and this RFC therefore treats as unknown:
-the order in which Always Use HTTPS and Redirect Rules run, and how a wildcard
-pattern with an explicit `https://` treats an `http` request.
+What the Cloudflare documentation says about the JavaScript detections: with
+Bot Fight Mode they are enabled automatically and cannot be disabled. It asks a
+site that uses a CSP to allow what is under `/cdn-cgi/challenge-platform/` and
+adds nonces to the scripts it injects by parsing the CSP response header.
+
+What the documentation did not say when this RFC was written, and the tests of
+P1 and P2 then answered: the order in which Always Use HTTPS and Redirect Rules
+run. P1 alone fixed the apex (see "Applied during the review").
 
 ## Goals
 
@@ -70,7 +80,7 @@ pattern with an explicit `https://` treats an `http` request.
 
 - The blog's own response headers: the blog is a separate service owned by
   `infra`.
-- The Web Application Firewall, Bot Fight Mode and anything else under Security.
+- Changing anything under Security. Bot Fight Mode stays as it is; what it does to the CSP is a decision below.
 - The HSTS preload list.
 - Managing the zone as code. Worth a separate discussion with `infra`.
 - CORS and cookies: the site sets none.
@@ -87,21 +97,79 @@ repository and affect only `www`.
 
 | # | Owner | Proposal |
 |---|---|---|
-| P1 | Zone | Turn **Always Use HTTPS** on. Effect: every `http` request to every host of the zone is redirected to `https`. Fixes `www` and the blog over HTTP, and probably the apex (see P2) |
-| P2 | Zone | Make the apex redirect work over HTTP. Preferred: rely on P1, then test `http://asymptora.com/`. If it still fails, change the Redirect Rule so its pattern also matches `http`, which is a change of the rule from ADR 0003. The order in which P1 and the rule run is not documented, so the test decides |
-| P3 | Zone | Raise the **minimum TLS version** to 1.2. RFC 8996 deprecated TLS 1.0 and 1.1. Cost: clients that only speak those versions can no longer connect. Their number is unknown |
-| P4 | Zone | Enable **HSTS** after P1 and P3 have held for a while. Start with the shortest `max-age` the dashboard offers, no `preload`, and `includeSubDomains` only after every hostname of the zone is confirmed to serve HTTPS. A browser keeps the policy until `max-age` expires, so this one cannot be undone quickly |
-| P5 | Site | `public/_headers` with `X-Content-Type-Options: nosniff` and a `Permissions-Policy` that turns off the features the site does not use |
-| P6 | Site | A **Content Security Policy** matching the pages as they are: `default-src 'none'; img-src 'self'; style-src 'self'; font-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`. Shipped first as `Content-Security-Policy-Report-Only`, checked in the browser console of Firefox and of a Chromium browser, then enforced. `frame-ancestors` also covers what `X-Frame-Options` does, so that header is not added |
+| P1 | Zone | **Applied 2026-10-10.** Turn **Always Use HTTPS** on. Effect: every `http` request to every host of the zone is redirected to `https`. Fixes `www` and the blog over HTTP, and probably the apex (see P2) |
+| P2 | Zone | **Applied 2026-10-10: P1 alone was enough, the Redirect Rule is unchanged.** Make the apex redirect work over HTTP. Preferred: rely on P1, then test `http://asymptora.com/`. If it still fails, change the Redirect Rule so its pattern also matches `http`, which is a change of the rule from ADR 0003. The order in which P1 and the rule run is not documented, so the test decides |
+| P3 | Zone | **Applied 2026-10-10.** Raise the **minimum TLS version** to 1.2. RFC 8996 deprecated TLS 1.0 and 1.1. Cost: clients that only speak those versions can no longer connect. Their number is unknown |
+| P4 | Zone | **Not proposed in this RFC.** HSTS: the reviewer does not want it for now. The dashboard offers a `max-age` of 1 to 12 months, so it cannot be undone quickly, and with P1 in place the benefit for a static site without cookies is small. To be reopened in its own RFC if wanted |
+| P5 | Site | `public/_headers` with a single `/*` block holding `X-Content-Type-Options: nosniff` and a `Permissions-Policy` that disables the features the site does not use: `accelerometer`, `camera`, `geolocation`, `gyroscope`, `magnetometer`, `microphone`, `payment`, `usb`. Verified with `wrangler dev` on `/`, `/about` and a path that does not exist, then on production after the deploy |
+| P6 | Site | A **Content Security Policy** matching the repository's pages: `default-src 'none'; img-src 'self'; style-src 'self'; font-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`. In the same `/*` block as P5. A header repeated in `_headers` is joined with a comma, so moving from Report-Only to enforced replaces the header, it does not add one. Shipped first as `Content-Security-Policy-Report-Only`, checked in the browser console of Firefox and of a Chromium browser on all seven pages, then enforced. `frame-ancestors` also covers what `X-Frame-Options` does, so that header is not added. No page links a web manifest, so `manifest-src` is not needed; add it if one is linked |
 
 Not proposed: `Referrer-Policy`. Browsers already default to
 `strict-origin-when-cross-origin`, so setting it would change nothing.
+
+Not proposed: the `Cross-Origin-Opener-Policy`, `Cross-Origin-Embedder-Policy`
+and `Cross-Origin-Resource-Policy` headers. The site keeps no session or other
+state that another origin could reach, embeds nothing, and shares no data with
+other sites, so there is nothing for them to isolate.
+
+## Decision: Cloudflare JavaScript detections stay enabled, the CSP is enforced
+
+The HTML that Cloudflare serves contains an inline script and a hidden link that
+are not in this repository (see "Current state"). Once P6 is enforced the CSP
+blocks both: the inline script (`script-src` falls back to `default-src 'none'`)
+and the inline `style` attribute of the hidden link. The JavaScript detections
+therefore stop running on `www` pages, and the browser console reports
+violations on every page load that come from Cloudflare, not from the site's
+content.
+
+| Option | Consequence |
+|---|---|
+| Turn the detections off | Not possible with Bot Fight Mode, and Bot Fight Mode also protects the blog and its admin login, which the infra owner decided to keep |
+| Keep P6 in Report-Only for good | Nothing is blocked, but the policy is never enforced |
+| Enforce only the directives that do not fall back to `default-src` (`frame-ancestors`, `base-uri`, `form-action`) | Cloudflare keeps working and there are no violations, but nothing restricts scripts or styles |
+| **Enforce the full CSP of P6 and accept the violations** | Chosen. `www` gets the strict policy; the detections do not run on `www`; the console shows the expected violations |
+
+Decision: keep Bot Fight Mode on, enforce the CSP, and document the violations.
+The blog is unaffected, because this CSP is sent only for `www`. The decision on
+Bot Fight Mode was taken by the infra owner; the decision to enforce the CSP is
+the author's.
+
+The Report-Only test lists the violations. Expected from Cloudflare: the inline
+script and the `style` attribute of the hidden link; if the Web Analytics beacon
+is injected again, it adds its own. Any other violation comes from the
+repository and has to be fixed before enforcement.
+
+## Applied during the review
+
+The infra owner applied P1, P2 and P3 on 2026-10-10 while reviewing, before the
+status of this RFC changed. They are recorded here as they happened. All three
+are reversible at once in the dashboard. The procedure, the commands and the
+expected output are in `asymptora/infra#32`. The numbers below are the reviewer's
+report of that procedure; the author did not repeat them.
+
+P1 and P2, `curl` over `http`, before and after:
+
+| Host | Before | After |
+|---|---|---|
+| `www` | `200` | `301` to https, then `200` |
+| apex | `522` | `301` to https, `301` to `www`, then `200` |
+| `blog` | `200` | `301` to https, then `200` |
+| `blog-admin` | not measured before | `301` to https, then `404` (Ghost has no route at `/`, expected) |
+
+Over https, `www` and the blog answer one `200` with no redirect loop.
+
+P3, `nmap --script ssl-enum-ciphers`:
+
+| Host | Before | After |
+|---|---|---|
+| `www` | TLS 1.0, 1.1, 1.2, 1.3 (3DES present under 1.0) | TLS 1.2, 1.3 |
+| `blog-admin` | not measured before | TLS 1.2, 1.3 (the setting applies to the whole zone) |
 
 ## Alternatives considered
 
 | Alternative | Why it was not chosen |
 |---|---|
-| Redirect HTTP to HTTPS only for `www`, with a Single Redirect | The Cloudflare documentation recommends this only when part of an application cannot serve HTTPS. Whether any hostname of the zone cannot is unknown (see the open questions); if none, P1 covers everything with one switch |
+| Redirect HTTP to HTTPS only for `www`, with a Single Redirect | The Cloudflare documentation recommends this only when part of an application cannot serve HTTPS. The reviewer confirmed that every hostname of the zone serves HTTPS (see "Points for the reviewer, answered"), so P1 covers everything with one switch |
 | HSTS set by `_headers` instead of the zone setting | Would apply to `www` alone and leave the blog and the apex without it. It is also the same irreversibility, decided in a place `infra` does not see |
 | CSP enforced from the first deploy | There is no preview environment (ADR 0005 deploys on merge). A mistake in the policy would break the site in production before anyone sees it. Report-Only costs one more pull request |
 | A site generator or Worker script to set headers | Rejected by ADR 0001. `_headers` is the documented mechanism for static assets |
@@ -112,12 +180,12 @@ Not proposed: `Referrer-Policy`. Browsers already default to
 
 Order matters because each step depends on the previous one being true.
 
-1. P1 and P2, tested together: `http` on `www`, apex and blog must end on
-   `https`. Test the blog first, because the zone is shared and Cloudflare
-   warns that origin-side redirects combined with this setting can loop.
-2. P3.
+1. P1 and P2, tested together: `http` on `www`, apex, blog and `blog-admin`
+   must end on `https`. The blog was tested first, because the zone is shared and
+   Cloudflare warns that origin-side redirects combined with this setting can
+   loop. Done on 2026-10-10.
+2. P3. Done on 2026-10-10.
 3. P5, then P6 in Report-Only, then P6 enforced. Each is one pull request.
-4. P4 last.
 
 ### `_headers`
 
@@ -133,13 +201,15 @@ post-deploy smoke test, which is a separate proposal still to be written.
 
 ## Completion criteria
 
-- `curl -sI` over `http` returns a redirect to `https` for `www`, the apex and
-  the blog.
+- `curl -sI` over `http` returns a redirect to `https` for `www`, the apex, the
+  blog and `blog-admin`. Met on 2026-10-10.
 - `curl -sI` on `/`, `/about` and an unknown path returns the headers of P5 and
   P6.
-- No CSP violation appears in the console of Firefox and of Chromium on the
-  seven pages while the policy is in Report-Only.
-- TLS 1.1 and below are refused.
+- No CSP violation originating from repository content appears in the console of
+  Firefox and of Chromium on the seven pages while the policy is in Report-Only.
+  The violations that come from Cloudflare are expected and are listed after the
+  test.
+- TLS 1.1 and below are refused. Met on 2026-10-10.
 
 ## Rollback
 
@@ -147,28 +217,37 @@ post-deploy smoke test, which is a separate proposal still to be written.
   previous pattern). Immediate.
 - P5, P6: `git revert` of the pull request; the pipeline redeploys (RFC 0001,
   Rollback). Removing a header does not need a new deploy order.
-- P4: no quick rollback. The browser keeps the policy until `max-age` ends,
-  which is why the first value is the shortest available.
 
-## Points for the reviewer
+## Points for the reviewer, answered
 
-- **Subdomains.** Which hostnames exist in the zone, and does every one of them
-  serve HTTPS? P1 applies to all of them, and `includeSubDomains` in P4 does as
-  well. This RFC has not inventoried them.
-- **The blog under P1.** Does the tunnel configuration or the Ghost instance
-  redirect on its own? If it does, P1 can loop.
-- **TLS 1.0 and 1.1 clients.** Does Cloudflare analytics show how many requests
-  use them? Not checked here.
-- **P2.** Prefer P1 alone, or change the rule's pattern in addition?
-- **P4.** Is HSTS wanted at all for a lab site, given that it is the one item
-  that is hard to undo? The other items stand without it.
+Answered by the reviewer on 2026-10-11 (issue #79). Verification of P1, P2 and
+P3 is in `asymptora/infra#32`.
+
+- **Subdomains.** `www`, the apex, `blog` and `blog-admin` (flat). No other
+  proxied DNS record. All of them serve HTTPS.
+- **The blog under P1.** No loop. The redirect happens at the edge before the
+  tunnel, and the proxy in front of Ghost forces `X-Forwarded-Proto: https`
+  (blog-service ADR 0003, per the reviewer).
+- **TLS 1.0 and 1.1 clients.** Not measured. The rollback is one selector in the
+  dashboard.
+- **P2.** P1 alone was enough. The apex Redirect Rule (ADR 0003) stays unchanged.
+- **P4.** Not wanted for now. Removed from this RFC.
+
+## Still open
+
+- Whether the Web Analytics beacon is meant to be on. It was injected on
+  2026-10-10 and absent on 2026-10-11; who changed it, if anyone, is not
+  established. If it is on, it is third-party-hosted script on every page.
+- The hidden link is attributed to AI Labyrinth by its markup, not by a
+  documented URL. Whether that feature is on is to be read in the dashboard.
+- `workers_dev` is `false` in `wrangler.jsonc`, but `preview_urls` is `true`.
+  Whether per-version preview URLs are reachable while `workers_dev` is off is
+  to be checked.
 
 ## Left to implementation
 
-- The exact `Permissions-Policy` list.
 - Whether `Content-Security-Policy-Report-Only` needs a reporting endpoint. It
   works without one, with violations visible only in the browser console.
-- The `max-age` values the dashboard offers.
 
 ## References
 
@@ -176,6 +255,8 @@ post-deploy smoke test, which is a separate proposal still to be written.
 - [ADR 0003: Apex redirect via a zone-level Redirect Rule](../architecture/adr/0003-apex-redirect-via-zone-rule.md)
 - [ADR 0004: Verify edge configuration via the Cloudflare API](../architecture/adr/0004-edge-verify-via-api.md)
 - [ADR 0007: Dark theme only, no JavaScript](../architecture/adr/0007-dark-only-theme-no-javascript.md)
+- `asymptora/infra#32`: runbook that enforces HTTPS and the minimum TLS version on the zone, with the evidence of 2026-10-10
 - Cloudflare Workers docs: static assets, Headers (`_headers`)
+- Cloudflare docs: JavaScript detections; Web Analytics; AI Labyrinth
 - Cloudflare SSL/TLS docs: Always Use HTTPS; HTTP Strict Transport Security
 - RFC 8996: Deprecating TLS 1.0 and TLS 1.1
