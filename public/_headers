@@ -1,0 +1,7 @@
+# Response headers for every path, read by Cloudflare (Workers static assets).
+# Not served to visitors. Rationale and rollback: RFC 0003 (P5 and P6).
+# A header repeated here is joined with a comma, so keep this single block and
+# replace a header instead of adding a second one.
+/*
+  X-Content-Type-Options: nosniff
+  Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()
