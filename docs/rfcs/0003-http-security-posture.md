@@ -291,9 +291,13 @@ Observed on 2026-10-11, after #90 was deployed.
 
 - The hidden link is attributed to AI Labyrinth by its markup, not by a
   documented URL. Whether that feature is on is to be read in the dashboard.
-- `workers_dev` is `false` in `wrangler.jsonc`, but `preview_urls` is `true`.
-  Whether per-version preview URLs are reachable while `workers_dev` is off is
-  to be checked.
+- `workers_dev` was `false` in `wrangler.jsonc`, but `preview_urls` was `true`.
+  Observed on 2026-10-11: the dashboard showed the Preview URL enabled ("Anyone
+  with this URL can visit"), and a version address of the form
+  `<version>-www.asymptora.workers.dev` answered `200` with the site. The
+  setting is changed to `false` in `wrangler.jsonc`. The Wrangler documentation
+  says an omitted `preview_urls` leaves the existing setting alone, so an
+  explicit value changes it.
 
 ## Left to implementation
 
