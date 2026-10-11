@@ -1,6 +1,7 @@
 # Version updates for the GitHub Actions used by the workflows in this
-# repository. They are pinned to version tags (for example actions/checkout@v6),
-# and nothing else tells us when a new major version appears.
+# repository. They are pinned to a commit SHA with the version in a trailing
+# comment (ADR 0013), so nothing else tells us when a new version appears, and
+# Dependabot updates the SHA and the comment together.
 #
 # npm dependencies are not listed on purpose: security alerts for them already
 # arrive through Dependabot security updates. Version updates for npm can be
