@@ -289,8 +289,13 @@ Observed on 2026-10-11, after #90 was deployed.
 
 ## Still open
 
-- The hidden link is attributed to AI Labyrinth by its markup, not by a
-  documented URL. Whether that feature is on is to be read in the dashboard.
+- The hidden link was attributed to AI Labyrinth by its markup, not by a
+  documented URL. Read in the dashboard on 2026-10-11 (Security, Settings, Bot
+  traffic): AI Labyrinth (Beta) is on, together with Bot Fight Mode. That
+  matches the hidden link. The feature adds `nofollow` links that only bots
+  see, so it does not change what a visitor sees and the CSP does not affect
+  it. It is a zone-wide setting and stays as it is; changing it is for the
+  infra owner.
 - `workers_dev` was `false` in `wrangler.jsonc`, but `preview_urls` was `true`.
   Observed on 2026-10-11: the dashboard showed the Preview URL enabled ("Anyone
   with this URL can visit"), and a version address of the form
