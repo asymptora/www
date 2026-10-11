@@ -9,10 +9,11 @@ Reviewer: Higor Cazuza (also the owner of `asymptora/infra`, who decides the zon
 Status of each proposal below: P1, P2 and P3 were applied and verified by the
 `infra` owner on 2026-10-10, during the review (see "Applied during the
 review"). P4 is not proposed in this RFC. P5 and P6 are accepted by the reviewer on 2026-10-11 and are implemented in their
-own pull requests: P5 is in production (#86), P6 is in production in
-Report-Only mode (#87) and is not yet enforced. Both pull requests were merged
-before the reviewer's approval of this RFC on 2026-10-11, so for P1, P2, P3, P5
-and the Report-Only step implementation preceded acceptance. The facts in "Current state"
+own pull requests: P5 is in production (#86), P6 was in production in
+Report-Only mode (#87) and is enforced since #90 (2026-10-11). #86 and #87 were
+merged before the reviewer's approval of this RFC on 2026-10-11, so for P1, P2,
+P3, P5 and the Report-Only step implementation preceded acceptance; #90 came
+after. The facts in "Current state"
 were observed before P1, P2 and P3 were applied, except where a row says another
 date.
 
@@ -106,7 +107,7 @@ repository and affect only `www`.
 | P3 | Zone | **Applied 2026-10-10.** Raise the **minimum TLS version** to 1.2. RFC 8996 deprecated TLS 1.0 and 1.1. Cost: clients that only speak those versions can no longer connect. Their number is unknown |
 | P4 | Zone | **Not proposed in this RFC.** HSTS: the reviewer does not want it for now. The dashboard offers a `max-age` of 1 to 12 months, so it cannot be undone quickly, and with P1 in place the benefit for a static site without cookies is small. To be reopened in its own RFC if wanted |
 | P5 | Site | **Applied 2026-10-11 (#86).** `public/_headers` with a single `/*` block holding `X-Content-Type-Options: nosniff` and a `Permissions-Policy` that disables the features the site does not use: `accelerometer`, `camera`, `geolocation`, `gyroscope`, `magnetometer`, `microphone`, `payment`, `usb`. Verified with `wrangler dev` on `/`, `/about` and a path that does not exist, then on production after the deploy |
-| P6 | Site | **Report-Only applied 2026-10-11 (#87); enforcement pending.** A **Content Security Policy** matching the repository's pages: `default-src 'none'; img-src 'self'; style-src 'self'; font-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`. In the same `/*` block as P5. A header repeated in `_headers` is joined with a comma, so moving from Report-Only to enforced replaces the header, it does not add one. Shipped first as `Content-Security-Policy-Report-Only`, checked in the browser console of Firefox and of a Chromium browser on all seven pages, then enforced. `frame-ancestors` also covers what `X-Frame-Options` does, so that header is not added. No page links a web manifest, so `manifest-src` is not needed; add it if one is linked |
+| P6 | Site | **Report-Only applied 2026-10-11 (#87); enforced 2026-10-11 (#90).** A **Content Security Policy** matching the repository's pages: `default-src 'none'; img-src 'self'; style-src 'self'; font-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`. In the same `/*` block as P5. A header repeated in `_headers` is joined with a comma, so moving from Report-Only to enforced replaces the header, it does not add one. Shipped first as `Content-Security-Policy-Report-Only`, checked in the browser console of Firefox and of a Chromium browser on all seven pages, then enforced. `frame-ancestors` also covers what `X-Frame-Options` does, so that header is not added. No page links a web manifest, so `manifest-src` is not needed; add it if one is linked |
 
 Not proposed: `Referrer-Policy`. Browsers already default to
 `strict-origin-when-cross-origin`, so setting it would change nothing.
@@ -208,8 +209,8 @@ post-deploy smoke test, which is a separate proposal still to be written.
 - `curl -sI` over `http` returns a redirect to `https` for `www`, the apex, the
   blog and `blog-admin`. Met on 2026-10-10.
 - `curl -sI` on `/`, `/about` and an unknown path returns the headers of P5 and
-  P6. P5 met on 2026-10-11, including the 404 response; P6 is in Report-Only
-  and is checked again when enforced.
+  P6. Met on 2026-10-11, including the 404 response for P5; P6 is enforced
+  (see "After enforcement").
 - No CSP violation originating from repository content appears in the console of
   Firefox and of Chromium on the seven pages while the policy is in Report-Only.
   The violations that come from Cloudflare are expected and are listed after the
@@ -268,13 +269,28 @@ Observed on 2026-10-11, after #86 and #87 were deployed.
   script of the JavaScript detections and the hidden link on 2026-10-11, while
   Firefox did not report either. The reason is not established.
 
+## After enforcement
+
+Observed on 2026-10-11, after #90 was deployed.
+
+- `curl -sI https://www.asymptora.com/` returns `content-security-policy` (no
+  `-report-only`), `permissions-policy` and `x-content-type-options: nosniff`.
+- Firefox, home page: the logo, the font and the dot grid render normally, and
+  the console shows one message: the policy blocked an inline script
+  (`script-src-elem`). The script is not in the repository. It is most likely
+  the JavaScript detections script that Cloudflare injects, but its content was
+  not inspected. A hash source cannot allow it: the injected script carries
+  values that change per request.
+- `/about` and `/nao-existe` render normally.
+- So the JavaScript detections do reach at least some browser visitors, and the
+  enforced policy stops them from running on `www` pages. This is the
+  consequence accepted in "Decision: Cloudflare JavaScript detections stay
+  enabled, the CSP is enforced".
+
 ## Still open
 
 - The hidden link is attributed to AI Labyrinth by its markup, not by a
   documented URL. Whether that feature is on is to be read in the dashboard.
-- Whether the JavaScript detections run for ordinary browser visitors. `curl`
-  receives the inline script; the Firefox console did not show a violation for
-  it.
 - `workers_dev` is `false` in `wrangler.jsonc`, but `preview_urls` is `true`.
   Whether per-version preview URLs are reachable while `workers_dev` is off is
   to be checked.
